@@ -13,8 +13,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 extern "C" {
-    #include "LoadShader.h"   /* Provides loading function for shader code */
-    #include "OBJParser.h"     /* Loading function for triangle meshes in OBJ format */
+    #include "source/LoadShader.h"
+    #include "source/OBJParser.h"
 }
 
 /* Define handles to two vertex buffer objects */

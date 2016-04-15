@@ -3,7 +3,7 @@ project(pexc1_animated_mobile)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-set(SOURCE_FILES main.cpp List.c LoadShader.c OBJParser.c StringExtra.c)
+set(SOURCE_FILES main.cpp source/List.c source/LoadShader.c source/OBJParser.c source/StringExtra.c)
 add_executable(pexc1_animated_mobile ${SOURCE_FILES})
 
 find_package(OpenGL REQUIRED)
