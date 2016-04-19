@@ -13,6 +13,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "source/Mesh.h"
+#include "source/Instance.h"
 
 extern "C" {
     #include "source/LoadShader.h"
@@ -25,7 +26,7 @@ static const char* FragmentShaderString;
 
 GLuint ShaderProgram;
 
-Mesh mesh1, mesh2;
+std::vector<Instance*> instances;
 
 glm::mat4 ProjectionMatrix; /* Perspective projection matrix */
 glm::mat4 ViewMatrix;       /* Camera view matrix */
@@ -143,14 +144,16 @@ void Display() {
         fprintf(stderr, "Could not bind uniform ModelMatrix\n");
         exit(-1);
     }
-    glUniformMatrix4fv(RotationUniform, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
+
+    for(auto& inst : instances){
+        glUniformMatrix4fv(RotationUniform, 1, GL_FALSE, glm::value_ptr(inst->getModelMatrix()));
+        inst->render();
+    }
+
 
     /* Set state to only draw wireframe (no lighting used, yet) */
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    //TODO render
-    mesh1.render();
-    mesh2.render();
 
     /* Swap between front and back buffer */
     glutSwapBuffers();
@@ -158,33 +161,19 @@ void Display() {
 
 void OnIdle()
 {
-    float angle = fmod((glutGet(GLUT_ELAPSED_TIME) / 1000.0), 360.0);
-
-    /* Time dependent rotation matrix */
-    glm::mat4 RotationMatrixAnim =
-            glm::rotate(glm::mat4(1.0f),              /* Output matrix */
-                        angle,                        /* Rotation angle */
-                        glm::vec3(0.0f, 1.0f, 0.0f)); /* Rotation axis*/
-
-    /* Apply model rotation; finally move cube down */
-    //ModelMatrix = TranslateDown * RotationMatrixAnim * InitialTransform;
-    //glm::mat4 Translation = glm::translate(glm::mat4(1.f), glm::vec3(10.f, 0 , 0));
-    //glm::mat4 ViewRotation = glm::rotate(glm::mat4(1.f), angle, glm::vec3(0.f, 1.f, 0.f));
-    //ViewMatrix = glm::inverse(Translation*ViewRotation);
-
-    /* Set up single transformation matrix for complete transformation
-       from model to screen space */
-    //PVMMatrix = ProjectionMatrix * ViewMatrix * ModelMatrix;
-
-    //ModelMatrix = glm::rotate(ModelMatrix, angle, glm::vec3(0,0,0));
+    //float angle = fmod((glutGet(GLUT_ELAPSED_TIME) / 1000.0), 360.0);
+    float angle = 2*M_PI/100;
+    float angle2 = 2* M_PI/200;
+    instances[0]->rotate(glm::vec3(0,1.f,0), angle);
+    instances[1]->rotate(glm::vec3(0,1.f,0), angle2);
+    for(auto& inst:instances){
+        inst->updateModelMatrix();
+    }
 
     /*Set camera position */
     ViewMatrix = glm::lookAt(glm::vec3(x, 1.0f, z),
                              glm::vec3(x+lx, 1.f + ly, z+lz),
                              glm::vec3( 0.f, 5.f, 0.f));
-
-    /* Apply model rotation; finally move cube down */
-    ModelMatrix = RotationMatrixAnim;
 
     /* Request redrawing of window content */
     glutPostRedisplay();
@@ -278,7 +267,7 @@ void CreateShaderProgram()
 
 
 void Initialize() {
-
+    Mesh mesh1, mesh2;
     if(!mesh1.loadObj("models/suzanne.obj")){
         printf("Could not load file. Exiting.\n");
         exit(0);
@@ -288,6 +277,17 @@ void Initialize() {
         printf("Could not load file. Exiting.\n");
         exit(0);
     }
+    Instance* inst1 = new Instance(mesh1);
+    Instance* inst2 = new Instance(mesh2);
+
+    inst1->setPosition(glm::vec3(0,0,0));
+    inst2->setPosition(glm::vec3(10, -5, 0));
+    //inst1.rotate()
+    instances.push_back(inst1);
+    instances.push_back(inst2);
+    inst1->addChild(inst2);
+
+
 
     /* Set background (clear) color to blue */
     glClearColor(0.0, 0.0, 0.4, 0.0);
@@ -304,7 +304,6 @@ void Initialize() {
     /* Initialize matrices */
     ProjectionMatrix = glm::mat4(1.f);
     ViewMatrix = glm::mat4(1.f);
-    ModelMatrix = glm::mat4(1.f);
 
 
     /* Set projection transform */
@@ -314,20 +313,9 @@ void Initialize() {
     float farPlane = 1000.0;
     ProjectionMatrix = glm::perspective(fovy, aspect, nearPlane, farPlane);
 
-    //ViewMatrix = glm::lookAt(glm::vec3(0,0,100),    /* Eye vector */
-      //                       glm::vec3(0,0,0),     /* Viewing center */
-        //                     glm::vec3(0,1,0) );  /* Up vector */
-
-    //TranslateDown = glm::translate(glm::mat4(1.0f),
-                                   //glm::vec3(0.0f, -sqrtf(sqrtf(2.0) * 1.0), 0.0f));
-
-    //InitialTransform = glm::translate(InitialTransform,
-      //                                glm::vec3(1.0f, 1.0f, 1.0f));
-
-
-
     ViewMatrix = glm::inverse(glm::translate(glm::mat4(1.f), glm::vec3(0.f,0.f,10.f)));
     //ViewMatrix = glm::mat4(1.f);
+
 }
 
 
@@ -363,5 +351,8 @@ int main(int argc, char** argv ) {
     glutMainLoop();
 
     /* ISO C requires main to return int */
+    for(auto inst:instances){
+        delete inst;
+    }
     return 0;
 }
