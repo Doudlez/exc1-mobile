@@ -162,10 +162,14 @@ void Display() {
 void OnIdle()
 {
     //float angle = fmod((glutGet(GLUT_ELAPSED_TIME) / 1000.0), 360.0);
-    float angle = 2*M_PI/100;
-    float angle2 = 2* M_PI/200;
+    float angle = 2*M_PI/200;
+    float angle2 = 2* M_PI/300;
+    float angle3 = 2*M_PI/500;
     instances[0]->rotate(glm::vec3(0,1.f,0), angle);
+    instances[4]->rotate(glm::vec3(0,1.f,0), angle2);
     instances[1]->rotate(glm::vec3(0,1.f,0), angle2);
+    instances[2]->rotate(glm::vec3(0,1.f,0), angle3);
+    instances[3]->rotate(glm::vec3(0,1.f,0), angle3);
     for(auto& inst:instances){
         inst->updateModelMatrix();
     }
@@ -267,8 +271,8 @@ void CreateShaderProgram()
 
 
 void Initialize() {
-    Mesh mesh1, mesh2;
-    if(!mesh1.loadObj("models/suzanne.obj")){
+    Mesh mesh1, mesh2, mesh3, mesh4, mesh5;
+    if(!mesh1.loadObj("models/teapot.obj")){
         printf("Could not load file. Exiting.\n");
         exit(0);
     }
@@ -277,15 +281,43 @@ void Initialize() {
         printf("Could not load file. Exiting.\n");
         exit(0);
     }
+
+    if(!mesh3.loadObj("models/suzanne.obj")){
+        printf("Could not load file. Exiting.\n");
+        exit(0);
+    }
+
+    if(!mesh4.loadObj("models/suzanne.obj")){
+        printf("Could not load file. Exiting.\n");
+        exit(0);
+    }
+
+    if(!mesh5.loadObj("models/suzanne.obj")){
+        printf("Could not load file. Exiting.\n");
+        exit(0);
+    }
+
     Instance* inst1 = new Instance(mesh1);
     Instance* inst2 = new Instance(mesh2);
+    Instance* inst3 = new Instance(mesh3);
+    Instance* inst4 = new Instance(mesh4);
+    Instance* inst5 = new Instance(mesh5);
 
     inst1->setPosition(glm::vec3(0,0,0));
-    inst2->setPosition(glm::vec3(10, -5, 0));
+    inst2->setPosition(glm::vec3(-10, -5, 0));
+    inst3->setPosition(glm::vec3(-4, -7, 0));
+    inst4->setPosition(glm::vec3(4, -7, 0));
+    inst5->setPosition(glm::vec3(5,-3,0));
     //inst1.rotate()
     instances.push_back(inst1);
     instances.push_back(inst2);
+    instances.push_back(inst3);
+    instances.push_back(inst4);
+    instances.push_back(inst5);
     inst1->addChild(inst2);
+    inst1->addChild(inst5);
+    inst2->addChild(inst3);
+    inst2->addChild(inst4);
 
 
 
