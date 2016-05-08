@@ -175,9 +175,9 @@ void OnIdle()
     }
 
     /*Set camera position */
-    ViewMatrix = glm::lookAt(glm::vec3(x, 1.0f, z),
-                             glm::vec3(x+lx, 1.f + ly, z+lz),
-                             glm::vec3( 0.f, 5.f, 0.f));
+    ViewMatrix = glm::lookAt(glm::vec3(x, 1.0f, z),                      //eye  position of camera viewpoint
+                             glm::vec3(x+lx, 1.f + ly, z+lz),            //center where u are looking at
+                             glm::vec3( 0.f, 5.f, 0.f));                 //up
 
     /* Request redrawing of window content */
     glutPostRedisplay();
@@ -277,13 +277,13 @@ void Initialize() {
         exit(0);
     }
 
-    if(!mesh2.loadObj("models/teapot.obj")){
-        printf("Could not load file. Exiting.\n");
+   if(!mesh2.loadObj("models/teapot.obj")){
+        printf("Could not load file 1. Exiting.\n");
         exit(0);
     }
 
     if(!mesh3.loadObj("models/suzanne.obj")){
-        printf("Could not load file. Exiting.\n");
+        printf("Could not load file 2. Exiting.\n");
         exit(0);
     }
 

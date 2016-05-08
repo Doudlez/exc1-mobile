@@ -1,0 +1,5 @@
+I used cmake to generate the MakeFile.
+navigate into build folder and call 
+	cmake ..
+	make
+
